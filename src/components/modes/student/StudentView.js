@@ -8,16 +8,16 @@ import TextField from '@material-ui/core/TextField';
 import { connect } from 'react-redux';
 import Button from '@material-ui/core/Button';
 import Tooltip from '@material-ui/core/Tooltip';
-import {
-  getAppInstanceResources,
-  patchAppInstanceResource,
-  postAppInstanceResource,
-  postAction,
-} from '../../../actions';
+import { postAction } from '../../../actions';
 import { FEEDBACK, INPUT } from '../../../config/appInstanceResourceTypes';
 import Loader from '../../common/Loader';
 import { MAX_INPUT_LENGTH, MAX_ROWS } from '../../../config/settings';
 import { SAVED } from '../../../config/verbs';
+import {
+  getAppData,
+  patchAppData,
+  postAppData,
+} from '../../../actions/appData';
 
 const styles = theme => ({
   main: {
@@ -53,9 +53,9 @@ class StudentView extends Component {
 
   static propTypes = {
     t: PropTypes.func.isRequired,
-    dispatchPostAppInstanceResource: PropTypes.func.isRequired,
-    dispatchPatchAppInstanceResource: PropTypes.func.isRequired,
-    dispatchGetAppInstanceResources: PropTypes.func.isRequired,
+    dispatchPostAppData: PropTypes.func.isRequired,
+    dispatchPatchAppData: PropTypes.func.isRequired,
+    dispatchGetAppData: PropTypes.func.isRequired,
     dispatchPostAction: PropTypes.func.isRequired,
     classes: PropTypes.shape({
       main: PropTypes.string,
@@ -85,26 +85,23 @@ class StudentView extends Component {
   };
 
   saveToApi = _.debounce(({ data }) => {
-    const { dispatchPatchAppInstanceResource, inputResourceId } = this.props;
+    const { dispatchPatchAppData, inputResourceId } = this.props;
     if (inputResourceId) {
-      dispatchPatchAppInstanceResource({ data, id: inputResourceId });
+      dispatchPatchAppData({
+        data: { text: data },
+        id: inputResourceId,
+      });
     }
   }, 1000);
 
   constructor(props) {
     super(props);
-    const { userId } = props;
-    // get the resources for this user
-    props.dispatchGetAppInstanceResources({ userId });
+    props.dispatchGetAppData();
   }
 
   componentDidMount() {
-    const { text, offline } = this.props;
+    const { text } = this.props;
 
-    // on mount creation of app instance resource only online
-    if (!offline) {
-      this.createInputAppInstanceResource();
-    }
     if (text) {
       this.setState({ text });
     }
@@ -127,7 +124,7 @@ class StudentView extends Component {
         userId !== prevUserId ||
         !inputResourceId
       ) {
-        this.createInputAppInstanceResource();
+        this.createInputAppData();
       }
     }
 
@@ -138,11 +135,10 @@ class StudentView extends Component {
     }
   }
 
-  createInputAppInstanceResource = () => {
+  createInputAppData = () => {
     const {
       inputResourceId,
-      dispatchPostAppInstanceResource,
-      userId,
+      dispatchPostAppData,
       ready,
       activity,
     } = this.props;
@@ -152,8 +148,8 @@ class StudentView extends Component {
     if (!createdInputResource) {
       // if there is no user id we cannot create the resource, so abort,
       // otherwise create the resource to save the text if it does not exist
-      if (userId && ready && !inputResourceId && !activity) {
-        dispatchPostAppInstanceResource({ userId, data: '', type: INPUT });
+      if (ready && !inputResourceId && !activity) {
+        dispatchPostAppData({ text: '', type: INPUT });
         this.setState({ createdInputResource: true });
       }
     }
@@ -174,8 +170,8 @@ class StudentView extends Component {
   handleClickSaveText = () => {
     const { text } = this.state;
     const {
-      dispatchPatchAppInstanceResource,
-      dispatchPostAppInstanceResource,
+      dispatchPatchAppData,
+      dispatchPostAppData,
       dispatchPostAction,
       inputResourceId,
       userId,
@@ -183,12 +179,12 @@ class StudentView extends Component {
 
     // if there is a resource id already, update, otherwise create
     if (inputResourceId) {
-      dispatchPatchAppInstanceResource({
+      dispatchPatchAppData({
         data: text,
         id: inputResourceId,
       });
     } else {
-      dispatchPostAppInstanceResource({
+      dispatchPostAppData({
         data: text,
         type: INPUT,
         userId,
@@ -286,34 +282,32 @@ class StudentView extends Component {
   }
 }
 
-const mapStateToProps = ({ context, appInstanceResources }) => {
+const mapStateToProps = ({ context, appData, auth }) => {
   const { userId, offline, standalone } = context;
-  const inputResource = appInstanceResources.content.find(({ user, type }) => {
-    return user === userId && type === INPUT;
+  const inputResource = appData.content?.find(({ type }) => {
+    return type === INPUT;
   });
-  const feedbackResource = appInstanceResources.content.find(
-    ({ user, type }) => {
-      return user === userId && type === FEEDBACK;
-    }
-  );
+  const feedbackResource = appData.content?.find(({ user, type }) => {
+    return user === userId && type === FEEDBACK;
+  });
 
   return {
     userId,
     offline,
     standalone,
     inputResourceId: inputResource && (inputResource.id || inputResource._id),
-    activity: Boolean(appInstanceResources.activity.length),
-    ready: appInstanceResources.ready,
-    text: inputResource && inputResource.data,
+    activity: Boolean(appData.activity.length),
+    ready: Boolean(auth.token) && appData.ready,
+    text: inputResource?.data?.text,
     feedback: feedbackResource && feedbackResource.data,
   };
 };
 
 const mapDispatchToProps = {
-  dispatchGetAppInstanceResources: getAppInstanceResources,
-  dispatchPostAppInstanceResource: postAppInstanceResource,
-  dispatchPatchAppInstanceResource: patchAppInstanceResource,
   dispatchPostAction: postAction,
+  dispatchGetAppData: getAppData,
+  dispatchPatchAppData: patchAppData,
+  dispatchPostAppData: postAppData,
 };
 
 const StyledComponent = withStyles(styles)(StudentView);

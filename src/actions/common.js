@@ -1,7 +1,5 @@
 import {
   MISSING_API_HOST_MESSAGE,
-  MISSING_APP_INSTANCE_ID_MESSAGE,
-  MISSING_SPACE_ID_MESSAGE,
   UNEXPECTED_ERROR_MESSAGE,
 } from '../constants/messages';
 import {
@@ -57,12 +55,6 @@ const getApiContext = getState => {
   if (!offline) {
     if (!apiHost) {
       throw Error(MISSING_API_HOST_MESSAGE);
-    }
-    if (!appInstanceId) {
-      throw Error(MISSING_APP_INSTANCE_ID_MESSAGE);
-    }
-    if (!spaceId) {
-      throw Error(MISSING_SPACE_ID_MESSAGE);
     }
   }
   return {

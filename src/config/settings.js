@@ -23,3 +23,7 @@ export const TEACHER_MODES = [TEACHER_MODE, 'producer', 'educator', 'admin'];
 
 export const DEFAULT_VISIBILITY = 'private';
 export const PUBLIC_VISIBILITY = 'public';
+
+// @TODO: this should come from env variables
+// the app developer should have this ID
+export const GRAASP_APP_ID = process.env.REACT_APP_GRAASP_APP_ID;

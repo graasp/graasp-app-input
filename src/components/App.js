@@ -6,10 +6,11 @@ import StudentView from './modes/student/StudentView';
 import { getContext } from '../actions';
 import { DEFAULT_LANG, DEFAULT_MODE } from '../config/settings';
 import { DEFAULT_VIEW } from '../config/views';
-import { getAppInstance } from '../actions/appInstance';
 import TeacherMode from './modes/teacher/TeacherMode';
 import Header from './layout/Header';
 import Loader from './common/Loader';
+import { getAppData } from '../actions/appData';
+import { getItemData } from '../actions/auth';
 
 export class App extends Component {
   static propTypes = {
@@ -17,46 +18,65 @@ export class App extends Component {
       defaultNS: PropTypes.string,
     }).isRequired,
     dispatchGetContext: PropTypes.func.isRequired,
-    dispatchGetAppInstance: PropTypes.func.isRequired,
-    appInstanceId: PropTypes.string,
+    dispatchGetAppData: PropTypes.func.isRequired,
     lang: PropTypes.string,
     mode: PropTypes.string,
     view: PropTypes.string,
     headerVisible: PropTypes.bool.isRequired,
     ready: PropTypes.bool.isRequired,
     standalone: PropTypes.bool.isRequired,
+    dispatchGetItemData: PropTypes.func.isRequired,
+    authActivity: PropTypes.bool.isRequired,
+    itemId: PropTypes.string,
   };
 
   static defaultProps = {
     lang: DEFAULT_LANG,
     mode: DEFAULT_MODE,
     view: DEFAULT_VIEW,
-    appInstanceId: null,
+    itemId: null,
   };
 
   constructor(props) {
     super(props);
     // first thing to do is get the context
     props.dispatchGetContext();
-    // then get the app instance
-    props.dispatchGetAppInstance();
   }
 
   componentDidMount() {
-    const { lang } = this.props;
+    const { lang, ready, dispatchGetAppData, dispatchGetItemData } = this.props;
     // set the language on first load
     this.handleChangeLang(lang);
+
+    dispatchGetItemData();
+
+    if (ready) {
+      dispatchGetAppData();
+    }
   }
 
-  componentDidUpdate({ lang: prevLang, appInstanceId: prevAppInstanceId }) {
-    const { lang, appInstanceId, dispatchGetAppInstance } = this.props;
+  componentDidUpdate({ lang: prevLang, ready: prevReady, itemId: prevItemId }) {
+    const {
+      lang,
+      dispatchGetAppData,
+      ready,
+      dispatchGetItemData,
+      authActivity,
+      itemId,
+    } = this.props;
+
     // handle a change of language
     if (lang !== prevLang) {
       this.handleChangeLang(lang);
     }
-    // handle receiving the app instance id
-    if (appInstanceId !== prevAppInstanceId) {
-      dispatchGetAppInstance();
+
+    // get item data
+    if (!authActivity && !itemId && itemId !== prevItemId) {
+      dispatchGetItemData();
+    }
+
+    if (ready && ready !== prevReady) {
+      dispatchGetAppData();
     }
   }
 
@@ -100,19 +120,22 @@ export class App extends Component {
   }
 }
 
-const mapStateToProps = ({ context, appInstance }) => ({
+const mapStateToProps = ({ context, appInstance, auth, appData }) => ({
   headerVisible: appInstance.content.settings.headerVisible,
   lang: context.lang,
   mode: context.mode,
   view: context.view,
-  appInstanceId: context.appInstanceId,
-  ready: appInstance.ready,
+  ready: Boolean(auth.token),
+  isAppDataReady: appData.ready,
   standalone: context.standalone,
+  itemId: auth.itemId,
+  authActivity: Boolean(auth.activity.length),
 });
 
 const mapDispatchToProps = {
   dispatchGetContext: getContext,
-  dispatchGetAppInstance: getAppInstance,
+  dispatchGetAppData: getAppData,
+  dispatchGetItemData: getItemData,
 };
 
 const ConnectedApp = connect(
