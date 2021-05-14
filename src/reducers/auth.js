@@ -1,9 +1,4 @@
-import {
-  FLAG_GETTING_ITEM_DATA,
-  GET_ITEM_DATA_SUCCEEDED,
-  SET_AUTH_TOKEN_SUCCEEDED,
-  SET_ITEM_DATA_SUCCEEDED,
-} from '../types';
+import { FLAG_GETTING_AUTH_TOKEN, GET_AUTH_TOKEN_SUCCEEDED } from '../types';
 
 const DEFAULT_SETTINGS = {};
 
@@ -17,7 +12,7 @@ const INITIAL_STATE = {
 
 export default (state = INITIAL_STATE, { payload, type }) => {
   switch (type) {
-    case FLAG_GETTING_ITEM_DATA:
+    case FLAG_GETTING_AUTH_TOKEN:
       // todo: handle activity for other calls
       return {
         ...state,
@@ -25,20 +20,10 @@ export default (state = INITIAL_STATE, { payload, type }) => {
           ? [...state.activity, payload]
           : [...state.activity.slice(1)],
       };
-    case SET_AUTH_TOKEN_SUCCEEDED:
+    case GET_AUTH_TOKEN_SUCCEEDED:
       return {
         ...state,
-        token: payload,
-      };
-    case SET_ITEM_DATA_SUCCEEDED:
-      return {
-        ...state,
-        itemId: payload?.itemId,
-        settings: payload?.settings,
-      };
-    case GET_ITEM_DATA_SUCCEEDED:
-      return {
-        ...state,
+        token: payload?.token,
         itemId: payload?.itemId,
         settings: payload?.settings,
       };

@@ -10,7 +10,7 @@ import TeacherMode from './modes/teacher/TeacherMode';
 import Header from './layout/Header';
 import Loader from './common/Loader';
 import { getAppData } from '../actions/appData';
-import { getItemData } from '../actions/auth';
+import { getAuthToken } from '../actions/auth';
 
 export class App extends Component {
   static propTypes = {
@@ -25,16 +25,16 @@ export class App extends Component {
     headerVisible: PropTypes.bool.isRequired,
     ready: PropTypes.bool.isRequired,
     standalone: PropTypes.bool.isRequired,
-    dispatchGetItemData: PropTypes.func.isRequired,
+    dispatchGetAuthToken: PropTypes.func.isRequired,
     authActivity: PropTypes.bool.isRequired,
-    itemId: PropTypes.string,
+    token: PropTypes.string,
   };
 
   static defaultProps = {
     lang: DEFAULT_LANG,
     mode: DEFAULT_MODE,
     view: DEFAULT_VIEW,
-    itemId: null,
+    token: null,
   };
 
   constructor(props) {
@@ -44,25 +44,30 @@ export class App extends Component {
   }
 
   componentDidMount() {
-    const { lang, ready, dispatchGetAppData, dispatchGetItemData } = this.props;
+    const {
+      lang,
+      ready,
+      dispatchGetAppData,
+      dispatchGetAuthToken,
+    } = this.props;
     // set the language on first load
     this.handleChangeLang(lang);
 
-    dispatchGetItemData();
+    dispatchGetAuthToken();
 
     if (ready) {
       dispatchGetAppData();
     }
   }
 
-  componentDidUpdate({ lang: prevLang, ready: prevReady, itemId: prevItemId }) {
+  componentDidUpdate({ lang: prevLang, ready: prevReady, token: prevToken }) {
     const {
       lang,
       dispatchGetAppData,
       ready,
-      dispatchGetItemData,
+      dispatchGetAuthToken,
       authActivity,
-      itemId,
+      token,
     } = this.props;
 
     // handle a change of language
@@ -71,8 +76,8 @@ export class App extends Component {
     }
 
     // get item data
-    if (!authActivity && !itemId && itemId !== prevItemId) {
-      dispatchGetItemData();
+    if (!authActivity && !token && token !== prevToken) {
+      dispatchGetAuthToken();
     }
 
     if (ready && ready !== prevReady) {
@@ -128,14 +133,14 @@ const mapStateToProps = ({ context, appInstance, auth, appData }) => ({
   ready: Boolean(auth.token),
   isAppDataReady: appData.ready,
   standalone: context.standalone,
-  itemId: auth.itemId,
+  token: auth.token,
   authActivity: Boolean(auth.activity.length),
 });
 
 const mapDispatchToProps = {
   dispatchGetContext: getContext,
   dispatchGetAppData: getAppData,
-  dispatchGetItemData: getItemData,
+  dispatchGetAuthToken: getAuthToken,
 };
 
 const ConnectedApp = connect(
