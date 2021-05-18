@@ -282,8 +282,8 @@ class StudentView extends Component {
   }
 }
 
-const mapStateToProps = ({ context, appData, auth }) => {
-  const { userId, offline, standalone } = context;
+const mapStateToProps = ({ context, appData }) => {
+  const { offline, standalone, userId, token } = context;
   const inputResource = appData.content?.find(({ type }) => {
     return type === INPUT;
   });
@@ -297,7 +297,7 @@ const mapStateToProps = ({ context, appData, auth }) => {
     standalone,
     inputResourceId: inputResource && (inputResource.id || inputResource._id),
     activity: Boolean(appData.activity.length),
-    ready: Boolean(auth.token) && appData.ready,
+    ready: Boolean(token) && appData.ready,
     text: inputResource?.data?.text,
     feedback: feedbackResource && feedbackResource.data,
   };

@@ -3,6 +3,7 @@ import {
   GET_APP_DATA_SUCCEEDED,
   PATCH_APP_DATA_FAILED,
   PATCH_APP_DATA_SUCCEEDED,
+  FLAG_GETTING_APP_DATA,
   POST_APP_DATA_SUCCEEDED,
 } from '../types';
 import { showErrorToast } from '../utils/toasts';
@@ -19,6 +20,7 @@ const INITIAL_STATE = {
 export default (state = INITIAL_STATE, { type, payload }) => {
   switch (type) {
     case FLAG_PATCHING_APP_DATA:
+    case FLAG_GETTING_APP_DATA:
       // todo: handle activity for other calls
       return {
         ...state,

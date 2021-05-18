@@ -4,7 +4,6 @@ import appInstanceResources from './appInstanceResources';
 import users from './users';
 import appInstance from './appInstance';
 import layout from './layout';
-import auth from './auth';
 import appData from './appData';
 
 export default combineReducers({
@@ -14,6 +13,5 @@ export default combineReducers({
   users,
   appInstance,
   layout,
-  auth,
   appData,
 });

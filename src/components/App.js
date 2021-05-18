@@ -3,14 +3,12 @@ import { connect } from 'react-redux';
 import { withTranslation } from 'react-i18next';
 import PropTypes from 'prop-types';
 import StudentView from './modes/student/StudentView';
-import { getContext } from '../actions';
+import { getContext, getAuthToken, getAppData } from '../actions';
 import { DEFAULT_LANG, DEFAULT_MODE } from '../config/settings';
 import { DEFAULT_VIEW } from '../config/views';
 import TeacherMode from './modes/teacher/TeacherMode';
 import Header from './layout/Header';
 import Loader from './common/Loader';
-import { getAppData } from '../actions/appData';
-import { getAuthToken } from '../actions/auth';
 
 export class App extends Component {
   static propTypes = {
@@ -26,15 +24,13 @@ export class App extends Component {
     ready: PropTypes.bool.isRequired,
     standalone: PropTypes.bool.isRequired,
     dispatchGetAuthToken: PropTypes.func.isRequired,
-    authActivity: PropTypes.bool.isRequired,
-    token: PropTypes.string,
+    contextIsLoading: PropTypes.bool.isRequired,
   };
 
   static defaultProps = {
     lang: DEFAULT_LANG,
     mode: DEFAULT_MODE,
     view: DEFAULT_VIEW,
-    token: null,
   };
 
   constructor(props) {
@@ -49,25 +45,27 @@ export class App extends Component {
       ready,
       dispatchGetAppData,
       dispatchGetAuthToken,
+      contextIsLoading,
     } = this.props;
     // set the language on first load
     this.handleChangeLang(lang);
 
-    dispatchGetAuthToken();
+    if (!contextIsLoading) {
+      dispatchGetAuthToken();
+    }
 
     if (ready) {
       dispatchGetAppData();
     }
   }
 
-  componentDidUpdate({ lang: prevLang, ready: prevReady, token: prevToken }) {
+  componentDidUpdate({ lang: prevLang, ready: prevReady }) {
     const {
       lang,
       dispatchGetAppData,
-      ready,
+      contextIsLoading,
       dispatchGetAuthToken,
-      authActivity,
-      token,
+      ready,
     } = this.props;
 
     // handle a change of language
@@ -75,8 +73,8 @@ export class App extends Component {
       this.handleChangeLang(lang);
     }
 
-    // get item data
-    if (!authActivity && !token && token !== prevToken) {
+    // get item context
+    if (!contextIsLoading && !ready) {
       dispatchGetAuthToken();
     }
 
@@ -125,16 +123,15 @@ export class App extends Component {
   }
 }
 
-const mapStateToProps = ({ context, appInstance, auth, appData }) => ({
+const mapStateToProps = ({ context, appInstance, appData }) => ({
   headerVisible: appInstance.content.settings.headerVisible,
   lang: context.lang,
   mode: context.mode,
   view: context.view,
-  ready: Boolean(auth.token),
+  ready: Boolean(context.token),
   isAppDataReady: appData.ready,
   standalone: context.standalone,
-  token: auth.token,
-  authActivity: Boolean(auth.activity.length),
+  contextIsLoading: Boolean(context.activity.length),
 });
 
 const mapDispatchToProps = {
