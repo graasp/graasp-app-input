@@ -45,7 +45,7 @@ export const getAppData = () => async (dispatch, getState) => {
       context: { token, itemId, apiHost },
     } = getState();
 
-    const response = await fetch(`//${apiHost}/items/${itemId}/app-data`, {
+    const response = await fetch(`${apiHost}/items/${itemId}/app-data`, {
       ...DEFAULT_GET_REQUEST,
       headers: {
         ...DEFAULT_GET_REQUEST.headers,
@@ -76,7 +76,7 @@ export const postAppData = ({ text, type }) => async (dispatch, getState) => {
       context: { token, itemId, apiHost },
     } = getState();
 
-    const response = await fetch(`//${apiHost}/items/${itemId}/app-data`, {
+    const response = await fetch(`${apiHost}/items/${itemId}/app-data`, {
       body: JSON.stringify({ data: { text }, type }),
       ...DEFAULT_POST_REQUEST,
       headers: {
@@ -118,7 +118,7 @@ export const patchAppData = ({ id, data } = {}) => async (
       return showErrorToast(MISSING_APP_INSTANCE_RESOURCE_ID_MESSAGE);
     }
 
-    const url = `//${apiHost}/items/${itemId}/app-data/${id}`;
+    const url = `${apiHost}/items/${itemId}/app-data/${id}`;
 
     const body = {
       data,

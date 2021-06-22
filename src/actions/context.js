@@ -77,6 +77,7 @@ const onMessage = dispatch => event => {
 const getAuthToken = () => async dispatch => {
   dispatch(flagGettingAuthToken(true));
 
+  console.debug('---- GET AUTH TOKEN');
   // request parent to provide item data (item id, settings...) and access token
   // eslint-disable-next-line no-unused-expressions
   port2?.postMessage(
@@ -127,6 +128,7 @@ const getContext = () => dispatch => {
     window.addEventListener('message', receiveContextMessage);
 
     // request parent to provide item data (item id, settings...) and access token
+    console.debug('----- GET CONTEXT');
     postMessage({
       type: GET_CONTEXT,
       payload: {
