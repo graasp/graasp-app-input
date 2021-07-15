@@ -4,20 +4,18 @@ import { connect } from 'react-redux';
 import TeacherView from './TeacherView';
 import TeacherDashboard from './TeacherDashboard';
 import { DEFAULT_VIEW, DASHBOARD_VIEW } from '../../../config/views';
-import { getAppInstanceResources } from '../../../actions';
+import { getAppData, getAppInstanceResources } from '../../../actions';
 import Loader from '../../common/Loader';
 
 class TeacherMode extends Component {
   static propTypes = {
-    appInstanceId: PropTypes.string,
     view: PropTypes.string,
     activity: PropTypes.bool,
-    dispatchGetAppInstanceResources: PropTypes.func.isRequired,
+    dispatchGetAppData: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
     view: 'normal',
-    appInstanceId: null,
     activity: false,
   };
 
@@ -25,15 +23,7 @@ class TeacherMode extends Component {
     super(props);
 
     // get all of the resources
-    props.dispatchGetAppInstanceResources();
-  }
-
-  componentDidUpdate({ appInstanceId: prevAppInstanceId }) {
-    const { appInstanceId, dispatchGetAppInstanceResources } = this.props;
-    // handle receiving the app instance id
-    if (appInstanceId !== prevAppInstanceId) {
-      dispatchGetAppInstanceResources();
-    }
+    props.dispatchGetAppData();
   }
 
   render() {
@@ -50,13 +40,13 @@ class TeacherMode extends Component {
     }
   }
 }
-const mapStateToProps = ({ context, appInstanceResources }) => ({
-  appInstanceId: context.appInstanceId,
+const mapStateToProps = ({ appInstanceResources }) => ({
   activity: appInstanceResources.activity.length,
 });
 
 const mapDispatchToProps = {
   dispatchGetAppInstanceResources: getAppInstanceResources,
+  dispatchGetAppData: getAppData,
 };
 
 const ConnectedComponent = connect(

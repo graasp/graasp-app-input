@@ -25,9 +25,9 @@ class Responses extends Component {
 
   static propTypes = {
     t: PropTypes.func.isRequired,
-    appInstanceResources: PropTypes.arrayOf(
+    appData: PropTypes.arrayOf(
       PropTypes.shape({
-        _id: PropTypes.string,
+        id: PropTypes.string,
         data: PropTypes.string,
         type: PropTypes.string,
       })
@@ -45,15 +45,15 @@ class Responses extends Component {
   };
 
   static defaultProps = {
-    appInstanceResources: [],
+    appData: [],
     students: [],
   };
 
   renderAppInstanceResources() {
-    const { t, students, appInstanceResources } = this.props;
+    const { t, students, appData } = this.props;
 
     // if there are no resources, show an empty table
-    if (!appInstanceResources.length) {
+    if (!appData.length) {
       return (
         <TableRow>
           <TableCell align="center" colSpan={4}>
@@ -68,11 +68,11 @@ class Responses extends Component {
     };
 
     // map each app instance resource to a row in the table
-    return appInstanceResources.map(({ _id, user, data }) => {
+    return appData.map(({ id, memberId, data }) => {
       const studentObject =
-        students.find(student => student.id === user) || anonymousUser;
+        students.find(student => student.id === memberId) || anonymousUser;
       return (
-        <Response _id={_id} key={_id} student={studentObject} data={data} />
+        <Response _id={id} key={id} student={studentObject} data={data?.text} />
       );
     });
   }

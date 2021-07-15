@@ -28,23 +28,13 @@ export class TeacherView extends Component {
     t: PropTypes.func.isRequired,
     dispatchGetUsers: PropTypes.func.isRequired,
     dispatchOpenSettings: PropTypes.func.isRequired,
-    // inside the shape method you should put the shape
-    // that the resources your app uses will have
-    appInstanceResources: PropTypes.arrayOf(
-      PropTypes.shape({
-        // we need to specify number to avoid warnings with local server
-        _id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-        appInstanceId: PropTypes.string,
-        data: PropTypes.object,
-      })
-    ),
-    // this is the shape of the select options for students
-    students: PropTypes.arrayOf(
+    members: PropTypes.arrayOf(
       PropTypes.shape({
         id: PropTypes.string,
         name: PropTypes.string,
       })
     ).isRequired,
+    appData: PropTypes.shape({}).isRequired,
   };
 
   static styles = theme => ({
@@ -76,8 +66,8 @@ export class TeacherView extends Component {
     // extract properties from the props object
     const {
       t,
-      students,
-      appInstanceResources,
+      members,
+      appData,
       dispatchOpenSettings,
       // this property allows us to do styling and is injected by withStyles
       classes,
@@ -87,10 +77,8 @@ export class TeacherView extends Component {
         <Grid container spacing={0} className={classes.root}>
           <Grid item xs={12} className={classes.main}>
             <Responses
-              students={students}
-              appInstanceResources={appInstanceResources.filter(
-                resource => resource.type === INPUT
-              )}
+              students={members}
+              appData={appData.filter(resource => resource.type === INPUT)}
             />
           </Grid>
         </Grid>
@@ -109,14 +97,10 @@ export class TeacherView extends Component {
   }
 }
 
-TeacherView.defaultProps = {
-  appInstanceResources: [],
-};
-
 // get the app instance resources that are saved in the redux store
-const mapStateToProps = ({ users, appInstanceResources }) => ({
-  students: users.content,
-  appInstanceResources: appInstanceResources.content,
+const mapStateToProps = ({ users, appData }) => ({
+  members: users.content,
+  appData: appData.content,
 });
 
 // allow this component to dispatch a post
